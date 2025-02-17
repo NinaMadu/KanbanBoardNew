@@ -2,6 +2,7 @@ package org.example;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.*;
@@ -12,7 +13,9 @@ public class KanbanServer {
     private static List<ClientHandler> clients = Collections.synchronizedList(new ArrayList<>());
 
     public static void main(String[] args) {
-        try (ServerSocket serverSocket = new ServerSocket(PORT)) {
+        try (
+            ServerSocket serverSocket = new ServerSocket(PORT, 50, InetAddress.getByName("0.0.0.0"));
+        ) {
             System.out.println("Kanban Server running on port " + PORT);
             while (true) {
                 Socket clientSocket = serverSocket.accept();

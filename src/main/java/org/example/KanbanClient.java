@@ -29,7 +29,8 @@ public class KanbanClient {
         frame.add(createColumn("Complete", completeModel));
 
         try {
-            socket = new Socket("localhost", 5000);
+            socket = new Socket("192.168.132.198"
+                    , 5000);
             out = new PrintWriter(socket.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
