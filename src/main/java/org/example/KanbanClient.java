@@ -80,17 +80,69 @@ public class KanbanClient {
 
         list.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 2) {
+                if (SwingUtilities.isRightMouseButton(e)) {
+                    int index = list.locationToIndex(e.getPoint());
+                    if (index != -1) {
+                        list.setSelectedIndex(index);
+                        showTaskOptions(list.getSelectedValue(), list, model, e.getComponent(), e.getX(), e.getY());
+                    }
+                } else if (e.getClickCount() == 2) {
                     String selectedTask = list.getSelectedValue();
-                    String newStatus = JOptionPane.showInputDialog("Move to (Unassigned, Open, Priority, Complete):");
-                    if (newStatus != null) {
-                        out.println("UPDATE:" + selectedTask + "," + newStatus);
+                    if (selectedTask != null) {
+                        showMoveTaskDialog(selectedTask);
                     }
                 }
             }
         });
 
         return panel;
+    }
+
+    private void showTaskOptions(String task, JList<String> list, DefaultListModel<String> model, Component comp, int x, int y) {
+        JPopupMenu menu = new JPopupMenu();
+        JMenuItem deleteItem = new JMenuItem("Delete Task");
+
+        deleteItem.addActionListener(e -> deleteTask(task, model));
+        menu.add(deleteItem);
+        menu.show(comp, x, y);
+    }
+
+    private void deleteTask(String task, DefaultListModel<String> model) {
+        out.println("DELETE:" + task);
+        model.removeElement(task);
+    }
+
+    private void showMoveTaskDialog(String task) {
+        JDialog dialog = new JDialog();
+        dialog.setTitle("Move Task");
+        dialog.setSize(300, 200);
+        dialog.setLayout(new GridLayout(5, 1));
+
+        JLabel label = new JLabel("Move task: " + task, SwingConstants.CENTER);
+        dialog.add(label);
+
+        JButton openButton = new JButton("Move to Open");
+        JButton priorityButton = new JButton("Move to Priority");
+        JButton completeButton = new JButton("Move to Complete");
+        JButton unassignedButton = new JButton("Move to Unassigned");
+
+        openButton.addActionListener(e -> moveTask(task, "Open", dialog));
+        priorityButton.addActionListener(e -> moveTask(task, "Priority", dialog));
+        completeButton.addActionListener(e -> moveTask(task, "Complete", dialog));
+        unassignedButton.addActionListener(e -> moveTask(task, "Unassigned", dialog));
+
+        dialog.add(openButton);
+        dialog.add(priorityButton);
+        dialog.add(completeButton);
+        dialog.add(unassignedButton);
+
+        dialog.setLocationRelativeTo(null);
+        dialog.setVisible(true);
+    }
+
+    private void moveTask(String task, String newStatus, JDialog dialog) {
+        out.println("UPDATE:" + task + "," + newStatus);
+        dialog.dispose();
     }
 
     private void updateTaskUI(String title, String status) {

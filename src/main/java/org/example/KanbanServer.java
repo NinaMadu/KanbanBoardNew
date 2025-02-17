@@ -46,6 +46,11 @@ public class KanbanServer {
         broadcastTasks();
     }
 
+    static synchronized void deleteTask(String title) {
+        taskList.removeIf(task -> task.title.equals(title));
+        broadcastTasks();
+    }
+
     static class ClientHandler extends Thread {
         private Socket clientSocket;
         private PrintWriter out;
@@ -70,12 +75,13 @@ public class KanbanServer {
 
                     String command = parts[0];
                     String[] taskData = parts[1].split(",", 2);
-                    if (taskData.length < 2) continue;
 
-                    if (command.equals("ADD")) {
+                    if (command.equals("ADD") && taskData.length == 2) {
                         addTask(new Task(taskData[0], taskData[1]));
-                    } else if (command.equals("UPDATE")) {
+                    } else if (command.equals("UPDATE") && taskData.length == 2) {
                         updateTask(taskData[0], taskData[1]);
+                    } else if (command.equals("DELETE")) {
+                        deleteTask(parts[1]);
                     }
                 }
             } catch (IOException e) {
