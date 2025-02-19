@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class KanbanServer {
@@ -33,13 +34,15 @@ public class KanbanServer {
 
     static synchronized void addTask(Task task) {
         taskList.add(task);
+        System.out.println("Task Added: " + task); // Debugging
         broadcastTasks();
     }
 
     static synchronized void updateTask(String title, String newStatus) {
         for (Task task : taskList) {
-            if (task.title.equals(title)) {
-                task.status = newStatus;
+            if (task.getTitle().equals(title)) {
+                task.setStatus(Task.Status.valueOf(newStatus));
+                System.out.println("Updated Task: " + task);
                 break;
             }
         }
@@ -47,7 +50,7 @@ public class KanbanServer {
     }
 
     static synchronized void deleteTask(String title) {
-        taskList.removeIf(task -> task.title.equals(title));
+        taskList.removeIf(task -> task.getTitle().equals(title));
         broadcastTasks();
     }
 
@@ -74,17 +77,22 @@ public class KanbanServer {
                     if (parts.length < 2) continue;
 
                     String command = parts[0];
-                    String[] taskData = parts[1].split(",", 2);
+                    String[] taskData = parts[1].split(",", 5);
 
-                    if (command.equals("ADD") && taskData.length == 2) {
-                        addTask(new Task(taskData[0], taskData[1]));
+                    if (command.equals("ADD") && taskData.length == 5) {
+                        String title = taskData[0];
+                        Task.Status status = Task.Status.valueOf(taskData[1]);
+                        String description = taskData[2];
+                        int priority = Integer.parseInt(taskData[3]);
+                        Date dueDate = new SimpleDateFormat("yyyy-MM-dd").parse(taskData[4]);
+                        addTask(new Task(title, status, description, priority, dueDate));
                     } else if (command.equals("UPDATE") && taskData.length == 2) {
                         updateTask(taskData[0], taskData[1]);
                     } else if (command.equals("DELETE")) {
                         deleteTask(parts[1]);
                     }
                 }
-            } catch (IOException e) {
+            } catch (IOException | java.text.ParseException e) {
                 e.printStackTrace();
             } finally {
                 clients.remove(this);
@@ -93,8 +101,9 @@ public class KanbanServer {
 
         public void sendTaskList() {
             synchronized (taskList) {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                 for (Task task : taskList) {
-                    out.println(task.title + ":" + task.status);
+                    out.println(task.getTitle() + ":" + task.getStatus() + "," + task.getDescription() + "," + task.getPriority() + "," + sdf.format(task.getDueDate()));
                 }
                 out.println("END");
             }

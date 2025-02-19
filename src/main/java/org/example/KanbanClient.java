@@ -5,28 +5,28 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.net.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class KanbanClient {
     private Socket socket;
     private PrintWriter out;
     private BufferedReader in;
-    private DefaultListModel<String> unassignedModel, openModel, priorityModel, completeModel;
+    private DefaultListModel<String> todoModel, inProgressModel, doneModel;
 
     public KanbanClient() {
         JFrame frame = new JFrame("Kanban Board");
         frame.setSize(700, 400);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setLayout(new GridLayout(1, 4));
+        frame.setLayout(new GridLayout(1, 3));
 
-        unassignedModel = new DefaultListModel<>();
-        openModel = new DefaultListModel<>();
-        priorityModel = new DefaultListModel<>();
-        completeModel = new DefaultListModel<>();
+        todoModel = new DefaultListModel<>();
+        inProgressModel = new DefaultListModel<>();
+        doneModel = new DefaultListModel<>();
 
-        frame.add(createColumn("Unassigned", unassignedModel));
-        frame.add(createColumn("Open", openModel));
-        frame.add(createColumn("Priority", priorityModel));
-        frame.add(createColumn("Complete", completeModel));
+        frame.add(createColumn("TODO", todoModel));
+        frame.add(createColumn("IN_PROGRESS", inProgressModel));
+        frame.add(createColumn("DONE", doneModel));
 
         try {
             socket = new Socket("localhost", 5000);
@@ -37,10 +37,20 @@ public class KanbanClient {
                 try {
                     String response;
                     while ((response = in.readLine()) != null) {
+                        System.out.println("Received: " + response); // Debugging
                         if (response.equals("END")) continue;
                         String[] taskData = response.split(":");
                         if (taskData.length == 2) {
-                            updateTaskUI(taskData[0], taskData[1]);
+                            String title = taskData[0];
+                            String[] details = taskData[1].split(",");
+                            if (details.length == 4) {
+                                String status = details[0];
+                                String description = details[1];
+                                int priority = Integer.parseInt(details[2]);
+                                String dueDate = details[3];
+                                System.out.println("Updating UI with task: " + title + ", " + status + ", " + description + ", " + priority + ", " + dueDate); // Debugging
+                                updateTaskUI(title, status, description, priority, dueDate);
+                            }
                         }
                     }
                 } catch (IOException e) {
@@ -68,7 +78,8 @@ public class KanbanClient {
         addButton.addActionListener(e -> {
             String task = taskField.getText();
             if (!task.isEmpty()) {
-                out.println("ADD:" + task + "," + title);
+                TaskDialog taskDialog = new TaskDialog(task, title, this::sendAddTask);
+                taskDialog.setVisible(true);
                 taskField.setText("");
             }
         });
@@ -116,25 +127,22 @@ public class KanbanClient {
         JDialog dialog = new JDialog();
         dialog.setTitle("Move Task");
         dialog.setSize(300, 200);
-        dialog.setLayout(new GridLayout(5, 1));
+        dialog.setLayout(new GridLayout(4, 1));
 
         JLabel label = new JLabel("Move task: " + task, SwingConstants.CENTER);
         dialog.add(label);
 
-        JButton openButton = new JButton("Move to Open");
-        JButton priorityButton = new JButton("Move to Priority");
-        JButton completeButton = new JButton("Move to Complete");
-        JButton unassignedButton = new JButton("Move to Unassigned");
+        JButton todoButton = new JButton("Move to TODO");
+        JButton inProgressButton = new JButton("Move to IN_PROGRESS");
+        JButton doneButton = new JButton("Move to DONE");
 
-        openButton.addActionListener(e -> moveTask(task, "Open", dialog));
-        priorityButton.addActionListener(e -> moveTask(task, "Priority", dialog));
-        completeButton.addActionListener(e -> moveTask(task, "Complete", dialog));
-        unassignedButton.addActionListener(e -> moveTask(task, "Unassigned", dialog));
+        todoButton.addActionListener(e -> moveTask(task, "TODO", dialog));
+        inProgressButton.addActionListener(e -> moveTask(task, "IN_PROGRESS", dialog));
+        doneButton.addActionListener(e -> moveTask(task, "DONE", dialog));
 
-        dialog.add(openButton);
-        dialog.add(priorityButton);
-        dialog.add(completeButton);
-        dialog.add(unassignedButton);
+        dialog.add(todoButton);
+        dialog.add(inProgressButton);
+        dialog.add(doneButton);
 
         dialog.setLocationRelativeTo(null);
         dialog.setVisible(true);
@@ -142,26 +150,42 @@ public class KanbanClient {
 
     private void moveTask(String task, String newStatus, JDialog dialog) {
         out.println("UPDATE:" + task + "," + newStatus);
+        System.out.println("Moving task: " + task + " to " + newStatus); // Debugging
         dialog.dispose();
     }
 
-    private void updateTaskUI(String title, String status) {
+    private void updateTaskUI(String title, String status, String description, int priority, String dueDate) {
         SwingUtilities.invokeLater(() -> {
             removeFromAllLists(title);
+            String taskDetails = title + " (" + description + ", " + priority + ", " + dueDate + ")";
             switch (status) {
-                case "Unassigned": unassignedModel.addElement(title); break;
-                case "Open": openModel.addElement(title); break;
-                case "Priority": priorityModel.addElement(title); break;
-                case "Complete": completeModel.addElement(title); break;
+                case "TODO": todoModel.addElement(taskDetails); break;
+                case "IN_PROGRESS": inProgressModel.addElement(taskDetails); break;
+                case "DONE": doneModel.addElement(taskDetails); break;
             }
         });
     }
 
     private void removeFromAllLists(String title) {
-        unassignedModel.removeElement(title);
-        openModel.removeElement(title);
-        priorityModel.removeElement(title);
-        completeModel.removeElement(title);
+        removeElementsFromModel(todoModel, title);
+        removeElementsFromModel(inProgressModel, title);
+        removeElementsFromModel(doneModel, title);
+    }
+
+    private void removeElementsFromModel(DefaultListModel<String> model, String title) {
+        for (int i = model.getSize() - 1; i >= 0; i--) {
+            String element = model.getElementAt(i);
+            if (element.startsWith(title + " (")) {
+                model.remove(i);
+            }
+        }
+    }
+
+    public void sendAddTask(String title, String status, String description, int priority, Date dueDate) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String taskDetails = title + "," + status + "," + description + "," + priority + "," + sdf.format(dueDate);
+        System.out.println("Sending ADD: " + taskDetails); // Debugging
+        out.println("ADD:" + taskDetails);
     }
 
     public static void main(String[] args) {
