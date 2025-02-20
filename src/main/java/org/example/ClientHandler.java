@@ -39,6 +39,9 @@ class ClientHandler extends Thread {
                     case "DELETE":
                         deleteTask(parts[1]);
                         break;
+                    case "EDIT":
+                        editTask(parts[1]);  // Handle edit task request
+                        break;
                     default:
                         out.println("ERROR: Invalid command");
                         break;
@@ -140,6 +143,29 @@ class ClientHandler extends Thread {
             out.println("ERROR: Failed to update task.");
         }
     }
+
+    private void editTask(String taskData) {
+        System.out.println("Received EDIT request: " + taskData); // Debugging log
+        try {
+            String[] data = taskData.split(",", 5);
+            if (data.length < 5) {
+                out.println("ERROR: Invalid EDIT format. Use TaskID,NewTitle,NewDescription,NewPriority,NewDueDate");
+                return;
+            }
+
+            String taskId = data[0].trim();
+            String newTitle = data[1].trim();
+            String newDescription = data[2].trim();
+            String newPriority = data[3].trim();
+            String newDueDate = data[4].trim();
+
+            // Call the server's edit task method
+            KanbanServer.editTask(taskId, newTitle, newDescription, newPriority, newDueDate);
+        } catch (Exception e) {
+            out.println("ERROR: Failed to edit task.");
+        }
+    }
+
 
 
     private void deleteTask(String taskId) {

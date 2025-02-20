@@ -64,6 +64,29 @@ public class KanbanServer {
         }// Broadcast updated task list to clients
     }
 
+    static synchronized void editTask(String taskId, String newTitle, String newDescription, String newPriority, String newDueDate) {
+        boolean updated = false;
+        for (Task task : taskList) {
+            if (task.getTaskId().equals(taskId)) {
+                // Update the task with new values
+                task.setTitle(newTitle);
+                task.setDescription(newDescription);
+                task.setPriority(newPriority);
+                task.setDueDate(LocalDate.parse(newDueDate));
+                updated = true;
+                System.out.println("Updated Task " + taskId);
+                break;
+            }
+        }
+
+        if (updated) {
+            broadcastTasks();  // Broadcast updated tasks to all clients
+        } else {
+            System.out.println("ERROR: Task ID " + taskId + " not found!");
+        }
+    }
+
+
     static synchronized void deleteTask(String taskId) {
         System.out.println("Attempting to delete task: " + taskId);
 

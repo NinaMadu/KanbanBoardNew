@@ -6,6 +6,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.PrintWriter;
 import java.util.Iterator;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 class KanbanGUI {
     private DefaultListModel<String> unassignedModel, openModel, priorityModel, completeModel;
@@ -113,11 +115,106 @@ class KanbanGUI {
 
     private void showTaskOptions(String task, DefaultListModel<String> model, Component comp, int x, int y) {
         JPopupMenu menu = new JPopupMenu();
+
+        JMenuItem editItem = new JMenuItem("Edit Task");
+        editItem.addActionListener(e -> showEditTaskDialog(task, model));
+        menu.add(editItem);
+
         JMenuItem deleteItem = new JMenuItem("Delete Task");
         deleteItem.addActionListener(e -> deleteTask(task, model));
         menu.add(deleteItem);
+
         menu.show(comp, x, y);
     }
+
+    private void showEditTaskDialog(String task, DefaultListModel<String> model) {
+        // Debugging
+        System.out.println("Task String: " + task);
+
+        // Extract task ID
+        String taskId = extractTaskId(task);
+
+        // Regex to parse the task format
+        Pattern pattern = Pattern.compile("\\[(.*?)\\] (.*?) \\((.*?)\\) - (.*?), Due: (\\d{4}-\\d{2}-\\d{2})");
+        Matcher matcher = pattern.matcher(task);
+
+        if (!matcher.matches()) {
+            JOptionPane.showMessageDialog(null, "Invalid task format!", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Extract details
+        String title = matcher.group(2).trim();
+        String priority = matcher.group(3).trim();
+        String description = matcher.group(4).trim();
+        String dueDate = matcher.group(5).trim();
+
+        // Create Dialog
+        JDialog dialog = new JDialog();
+        dialog.setTitle("Edit Task");
+        dialog.setSize(350, 300);
+        dialog.setLayout(new GridLayout(5, 2, 5, 5)); // Grid layout with spacing
+
+        // Create input fields
+        JLabel titleLabel = new JLabel("Title:");
+        JTextField titleField = new JTextField(title);
+
+        JLabel descLabel = new JLabel("Description:");
+        JTextField descField = new JTextField(description);
+
+        JLabel dueDateLabel = new JLabel("Due Date:");
+        JTextField dueDateField = new JTextField(dueDate);
+
+        JLabel priorityLabel = new JLabel("Priority:");
+        String[] priorities = {"Low", "Medium", "High"};
+        JComboBox<String> priorityComboBox = new JComboBox<>(priorities);
+        priorityComboBox.setSelectedItem(priority);
+
+        JButton saveButton = new JButton("Save Changes");
+        saveButton.addActionListener(e -> {
+            String newTitle = titleField.getText().trim();
+            String newDescription = descField.getText().trim();
+            String newDueDate = dueDateField.getText().trim();
+            String newPriority = (String) priorityComboBox.getSelectedItem();
+
+            if (!newTitle.isEmpty() && !newDueDate.isEmpty()) {
+                // Format the updated task
+                String updatedTask = String.format("[%s] %s (%s) - %s, Due: %s",
+                        taskId, newTitle, newPriority, newDescription, newDueDate);
+
+                // Prepare the message to send to the server for updating the task
+                String updatedTaskMessage = String.format("EDIT:%s,%s,%s,%s,%s", taskId, newTitle, newDescription, newPriority, newDueDate);
+
+                // Send the edit command to the server
+                out.println(updatedTaskMessage);
+
+                // Remove the old task from the model and add the updated one
+                model.removeElement(task);
+                model.addElement(updatedTask);
+
+                // Close the edit dialog
+                dialog.dispose();
+            } else {
+                JOptionPane.showMessageDialog(dialog, "Task title and due date cannot be empty!", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+        // Add components to dialog
+        dialog.add(titleLabel);
+        dialog.add(titleField);
+        dialog.add(descLabel);
+        dialog.add(descField);
+        dialog.add(dueDateLabel);
+        dialog.add(dueDateField);
+        dialog.add(priorityLabel);
+        dialog.add(priorityComboBox);
+        dialog.add(new JLabel()); // Empty placeholder for spacing
+        dialog.add(saveButton);
+
+        dialog.setVisible(true);
+    }
+
+
 
     private void deleteTask(String task, DefaultListModel<String> model) {
         System.out.println("Deleting Task: " + task);
