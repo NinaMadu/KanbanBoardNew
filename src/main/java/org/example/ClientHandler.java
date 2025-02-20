@@ -143,11 +143,12 @@ class ClientHandler extends Thread {
 
 
     private void deleteTask(String taskId) {
-        boolean removed = taskList.removeIf(task -> task.getTaskId().equals(taskId));
-        if (!removed) {
-            out.println("ERROR: Task ID not found.");
-        } else {
-            KanbanServer.broadcastTasks(); // Broadcast updated task list after deletion
+        System.out.println("Received DELETE request: " + taskId);
+        try {
+            KanbanServer.deleteTask(taskId);
+        }
+        catch (Exception e){
+            out.println("ERROR: Failed to delete task.");
         }
     }
 }

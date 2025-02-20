@@ -65,7 +65,24 @@ public class KanbanServer {
     }
 
     static synchronized void deleteTask(String taskId) {
+        System.out.println("Attempting to delete task: " + taskId);
+
+        boolean found = false;
+        for (Task task : taskList) {
+            System.out.println("Existing Task ID: " + task.getTaskId());
+            if (task.getTaskId().equals(taskId)) {
+                found = true;
+            }
+        }
+
+        if (!found) {
+            System.out.println("ERROR: Task ID not found!");
+            return;
+        }
+
         taskList.removeIf(task -> task.getTaskId().equals(taskId));
+        System.out.println("Task " + taskId + " deleted successfully.");
         broadcastTasks();
     }
+
 }

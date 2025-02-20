@@ -111,8 +111,6 @@ class KanbanGUI {
     }
 
 
-
-
     private void showTaskOptions(String task, DefaultListModel<String> model, Component comp, int x, int y) {
         JPopupMenu menu = new JPopupMenu();
         JMenuItem deleteItem = new JMenuItem("Delete Task");
@@ -122,7 +120,9 @@ class KanbanGUI {
     }
 
     private void deleteTask(String task, DefaultListModel<String> model) {
-        out.println("DELETE:" + task);
+        System.out.println("Deleting Task: " + task);
+        String taskId = extractTaskId(task);
+        out.println("DELETE:" + taskId);
         model.removeElement(task);
     }
 
