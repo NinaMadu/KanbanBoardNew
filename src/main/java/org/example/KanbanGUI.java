@@ -277,7 +277,7 @@ class KanbanGUI {
         });
     }
 
-    private void removeFromAllLists(String taskId) {
+    public void removeFromAllLists(String taskId) {
         System.out.println("Removing Task ID: " + taskId + " from all lists");
         removeTaskFromModel(unassignedModel, taskId);
         removeTaskFromModel(openModel, taskId);

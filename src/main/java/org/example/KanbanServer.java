@@ -40,6 +40,13 @@ public class KanbanServer {
         }
     }
 
+    static synchronized void broadcastMessage(String message) {
+        for (ClientHandler client : clients) { // Assuming `clients` is a List<ClientHandler>
+            client.sendMessage(message);
+        }
+    }
+
+
     static synchronized void addTask(Task task) {
         taskList.add(task);
         broadcastTasks();
@@ -105,7 +112,11 @@ public class KanbanServer {
 
         taskList.removeIf(task -> task.getTaskId().equals(taskId));
         System.out.println("Task " + taskId + " deleted successfully.");
+        broadcastMessage("DELETE:" + taskId);
         broadcastTasks();
     }
 
+    public static synchronized List<Task> getTasks() {
+        return new ArrayList<>(taskList); // Return a copy to avoid concurrency issues
+    }
 }

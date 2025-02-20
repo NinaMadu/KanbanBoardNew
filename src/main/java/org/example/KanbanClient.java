@@ -40,6 +40,9 @@ public class KanbanClient {
 
                         gui.updateTaskUI(taskId, title, description, status, priority, dueDate);
                     }
+                } else if (response.startsWith("DELETE:")) {
+                    String taskId = response.substring(7).trim();
+                    gui.removeFromAllLists(taskId);
                 } else if (response.startsWith("ERROR:")) {
                     gui.displayError(response);
                 }

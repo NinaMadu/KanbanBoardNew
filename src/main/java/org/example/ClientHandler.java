@@ -20,6 +20,8 @@ class ClientHandler extends Thread {
         this.clientSocket = socket;
         in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
         out = new PrintWriter(clientSocket.getOutputStream(), true);
+
+        sendAllTasks();
     }
 
     public void run() {
@@ -61,8 +63,21 @@ class ClientHandler extends Thread {
         }
     }
 
+    private void sendAllTasks() {
+        for (Task task : KanbanServer.getTasks()) {
+            sendMessage("TASK:" + task.getTaskId() + "," +
+                    task.getTitle() + "," +
+                    task.getDescription() + "," +
+                    task.getStatus() + "," +
+                    task.getPriority() + "," +
+                    task.getDueDate());
+        }
+        sendMessage("END"); // Indicate end of data
+    }
+
     public void sendMessage(String message) {
         out.println(message);
+        out.flush();
     }
 
 
@@ -172,6 +187,7 @@ class ClientHandler extends Thread {
         System.out.println("Received DELETE request: " + taskId);
         try {
             KanbanServer.deleteTask(taskId);
+            KanbanServer.broadcastMessage("DELETE:" + taskId);
         }
         catch (Exception e){
             out.println("ERROR: Failed to delete task.");
