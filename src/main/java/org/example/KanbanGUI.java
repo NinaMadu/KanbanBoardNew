@@ -192,6 +192,7 @@ class KanbanGUI {
         System.out.println("Checking list for Task ID: " + taskId);
         for (int i = 0; i < model.size(); i++) {
             if (model.get(i).contains(taskId)) {
+                System.out.println("Removing task from list: " + model.getElementAt(i));
                 model.remove(i);
                 i--;
             }

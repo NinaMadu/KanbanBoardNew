@@ -46,13 +46,22 @@ public class KanbanServer {
     }
 
     static synchronized void updateTask(String taskId, String newStatus) {
+        boolean updated = false;
         for (Task task : taskList) {
+            System.out.println(task.getTaskId());
             if (task.getTaskId().equals(taskId)) {
                 task.setStatus(newStatus); // Only update the status
+                updated = true;
+                System.out.println("Updated Task " + taskId + " to status: " + newStatus);
                 break;
             }
         }
-        broadcastTasks(); // Broadcast updated task list to clients
+        if(updated){
+            broadcastTasks();
+        }
+        else {
+            System.out.println("ERROR: Task ID " + taskId + " not found!");
+        }// Broadcast updated task list to clients
     }
 
     static synchronized void deleteTask(String taskId) {

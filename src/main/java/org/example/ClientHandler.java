@@ -130,23 +130,12 @@ class ClientHandler extends Thread {
             }
 
             String taskId = data[0].trim();
+            System.out.println("taskId "+taskId  );
             String newStatus = data[1].trim();
+            System.out.println("new status "+ newStatus);
 
-            boolean taskFound = false;
-            for (Task task : taskList) {
-                if (task.getTaskId().equals(taskId)) {
-                    task.setStatus(newStatus);
-                    taskFound = true;
-                    break;
-                }
-            }
+            KanbanServer.updateTask(taskId, newStatus);
 
-            if (!taskFound) {
-                out.println("ERROR: Task ID not found.");
-            } else {
-                System.out.println("Task " + taskId + " updated to " + newStatus);
-                KanbanServer.broadcastTasks();
-            }
         } catch (Exception e) {
             out.println("ERROR: Failed to update task.");
         }
