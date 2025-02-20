@@ -5,11 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e8c054ab-6776-402e-b949-c85c838c0771" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/TaskPanel.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/TaskRenderer.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/ClientHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/ClientHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/KanbanClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/KanbanClient.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/example/KanbanGUI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/KanbanGUI.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/KanbanServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/KanbanServer.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

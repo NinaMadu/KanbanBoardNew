@@ -38,6 +38,7 @@ class KanbanGUI {
         panel.setBorder(BorderFactory.createTitledBorder(title));
 
         JList<String> list = new JList<>(model);
+        list.setCellRenderer(new TaskRenderer());
         JScrollPane scrollPane = new JScrollPane(list);
         panel.add(scrollPane, BorderLayout.CENTER);
 
