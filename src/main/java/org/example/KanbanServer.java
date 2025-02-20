@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.time.LocalDate;
 import java.util.*;
 
 public class KanbanServer {
@@ -27,7 +28,15 @@ public class KanbanServer {
 
     static synchronized void broadcastTasks() {
         for (ClientHandler client : clients) {
-            client.sendTaskList();
+            for (Task task : taskList) {
+                client.sendMessage("TASK:" + task.getTaskId() + "," +
+                        task.getTitle() + "," +
+                        task.getDescription() + "," +
+                        task.getStatus() + "," +
+                        task.getPriority() + "," +
+                        task.getDueDate());
+            }
+            client.sendMessage("END"); // Indicate end of data
         }
     }
 
@@ -36,68 +45,18 @@ public class KanbanServer {
         broadcastTasks();
     }
 
-    static synchronized void updateTask(String title, String newStatus) {
+    static synchronized void updateTask(String taskId, String newStatus) {
         for (Task task : taskList) {
-            if (task.title.equals(title)) {
-                task.status = newStatus;
+            if (task.getTaskId().equals(taskId)) {
+                task.setStatus(newStatus); // Only update the status
                 break;
             }
         }
-        broadcastTasks();
+        broadcastTasks(); // Broadcast updated task list to clients
     }
 
-    static synchronized void deleteTask(String title) {
-        taskList.removeIf(task -> task.title.equals(title));
+    static synchronized void deleteTask(String taskId) {
+        taskList.removeIf(task -> task.getTaskId().equals(taskId));
         broadcastTasks();
-    }
-
-    static class ClientHandler extends Thread {
-        private Socket clientSocket;
-        private PrintWriter out;
-
-        public ClientHandler(Socket socket) {
-            this.clientSocket = socket;
-            try {
-                out = new PrintWriter(clientSocket.getOutputStream(), true);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        public void run() {
-            try (Scanner in = new Scanner(clientSocket.getInputStream())) {
-                sendTaskList();  // Send existing tasks to new client
-
-                while (in.hasNextLine()) {
-                    String input = in.nextLine();
-                    String[] parts = input.split(":", 2);
-                    if (parts.length < 2) continue;
-
-                    String command = parts[0];
-                    String[] taskData = parts[1].split(",", 2);
-
-                    if (command.equals("ADD") && taskData.length == 2) {
-                        addTask(new Task(taskData[0], taskData[1]));
-                    } else if (command.equals("UPDATE") && taskData.length == 2) {
-                        updateTask(taskData[0], taskData[1]);
-                    } else if (command.equals("DELETE")) {
-                        deleteTask(parts[1]);
-                    }
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                clients.remove(this);
-            }
-        }
-
-        public void sendTaskList() {
-            synchronized (taskList) {
-                for (Task task : taskList) {
-                    out.println(task.title + ":" + task.status);
-                }
-                out.println("END");
-            }
-        }
     }
 }

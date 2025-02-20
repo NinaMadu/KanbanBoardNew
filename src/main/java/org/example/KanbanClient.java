@@ -27,9 +27,21 @@ public class KanbanClient {
             String response;
             while ((response = in.readLine()) != null) {
                 if (response.equals("END")) continue;
-                String[] taskData = response.split(":");
-                if (taskData.length == 2) {
-                    gui.updateTaskUI(taskData[0], taskData[1]);
+
+                if (response.startsWith("TASK:")) {
+                    String[] taskData = response.substring(5).split(",", 6);
+                    if (taskData.length == 6) {
+                        String taskId = taskData[0].trim();
+                        String title = taskData[1].trim();
+                        String description = taskData[2].trim();
+                        String status = taskData[3].trim();
+                        String priority = taskData[4].trim();
+                        String dueDate = taskData[5].trim();
+
+                        gui.updateTaskUI(taskId, title, description, status, priority, dueDate);
+                    }
+                } else if (response.startsWith("ERROR:")) {
+                    gui.displayError(response);
                 }
             }
         } catch (IOException e) {
@@ -37,8 +49,8 @@ public class KanbanClient {
         }
     }
 
+
     public static void main(String[] args) {
         new KanbanClient();
     }
 }
-

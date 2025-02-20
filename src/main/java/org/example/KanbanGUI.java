@@ -5,6 +5,7 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.PrintWriter;
+import java.util.Iterator;
 
 class KanbanGUI {
     private DefaultListModel<String> unassignedModel, openModel, priorityModel, completeModel;
@@ -13,7 +14,7 @@ class KanbanGUI {
     public KanbanGUI(PrintWriter out) {
         this.out = out;
         JFrame frame = new JFrame("Kanban Board");
-        frame.setSize(700, 400);
+        frame.setSize(800, 400);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new GridLayout(1, 4));
 
@@ -38,21 +39,6 @@ class KanbanGUI {
         JScrollPane scrollPane = new JScrollPane(list);
         panel.add(scrollPane, BorderLayout.CENTER);
 
-        JTextField taskField = new JTextField();
-        JButton addButton = new JButton("Add Task");
-        addButton.addActionListener(e -> {
-            String task = taskField.getText();
-            if (!task.isEmpty()) {
-                out.println("ADD:" + task + "," + title);
-                taskField.setText("");
-            }
-        });
-
-        JPanel bottomPanel = new JPanel(new BorderLayout());
-        bottomPanel.add(taskField, BorderLayout.CENTER);
-        bottomPanel.add(addButton, BorderLayout.EAST);
-        panel.add(bottomPanel, BorderLayout.SOUTH);
-
         list.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 if (SwingUtilities.isRightMouseButton(e)) {
@@ -70,13 +56,66 @@ class KanbanGUI {
             }
         });
 
+        // **Adding the Add Task Button**
+        JButton addButton = new JButton("Add Task");
+        addButton.addActionListener(e -> showAddTaskDialog(model, title));
+        panel.add(addButton, BorderLayout.SOUTH);
+
         return panel;
     }
+
+    private void showAddTaskDialog(DefaultListModel<String> model, String columnTitle) {
+        JDialog dialog = new JDialog();
+        dialog.setTitle("Add Task");
+        dialog.setSize(300, 300); // Increase size for the new input field
+        dialog.setLayout(new GridLayout(6, 1));
+
+        JTextField taskTitleField = new JTextField();
+        JTextField taskDescField = new JTextField();
+        JTextField dueDateField = new JTextField();
+
+        // Add a JComboBox for priority selection
+        String[] priorities = {"Low", "Medium", "High"};
+        JComboBox<String> priorityComboBox = new JComboBox<>(priorities);
+
+        JButton addTaskButton = new JButton("Add Task");
+        addTaskButton.addActionListener(e -> {
+            String taskTitle = taskTitleField.getText().trim();
+            String taskDesc = taskDescField.getText().trim();
+            String dueDate = dueDateField.getText().trim();
+            String priority = (String) priorityComboBox.getSelectedItem(); // Get the selected priority
+
+            if (!taskTitle.isEmpty() && !dueDate.isEmpty()) {
+                // Format the task string with pipe delimiter
+                String newTask = String.format("%s|%s|Unassigned|%s|%s", taskTitle, taskDesc, priority, dueDate);
+                System.out.println("Sending Task: " + newTask); // Debugging line
+                out.println("ADD:" + newTask + "," + columnTitle); // Log the new task
+                dialog.dispose();
+            } else {
+                JOptionPane.showMessageDialog(dialog, "Task title and due date cannot be empty!", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+        dialog.add(new JLabel("Task Title:"));
+        dialog.add(taskTitleField);
+        dialog.add(new JLabel("Description:"));
+        dialog.add(taskDescField);
+        dialog.add(new JLabel("Due Date (YYYY-MM-DD):"));
+        dialog.add(dueDateField);
+        dialog.add(new JLabel("Priority:"));
+        dialog.add(priorityComboBox);
+        dialog.add(addTaskButton);
+
+        dialog.setLocationRelativeTo(null);
+        dialog.setVisible(true);
+    }
+
+
+
 
     private void showTaskOptions(String task, DefaultListModel<String> model, Component comp, int x, int y) {
         JPopupMenu menu = new JPopupMenu();
         JMenuItem deleteItem = new JMenuItem("Delete Task");
-
         deleteItem.addActionListener(e -> deleteTask(task, model));
         menu.add(deleteItem);
         menu.show(comp, x, y);
@@ -116,26 +155,50 @@ class KanbanGUI {
     }
 
     private void moveTask(String task, String newStatus, JDialog dialog) {
-        out.println("UPDATE:" + task + "," + newStatus);
+        String taskId = extractTaskId(task);
+        System.out.println("Moving Task: " + taskId + " to " + newStatus);
+        out.println("UPDATE:" + taskId + "," + newStatus);
         dialog.dispose();
     }
 
-    public void updateTaskUI(String title, String status) {
+    // Extract only the task ID from the formatted task string
+    private String extractTaskId(String task) {
+        return task.substring(task.indexOf("[") + 1, task.indexOf("]")).trim();
+    }
+
+    public void updateTaskUI(String taskId, String title, String description, String status, String priority, String dueDate) {
+        System.out.println("Updating UI for Task ID: " + taskId + " to status: " + status);
         SwingUtilities.invokeLater(() -> {
-            removeFromAllLists(title);
+            String formattedTask = String.format("[%s] %s (%s) - %s, Due: %s", taskId, title, priority, description, dueDate);
+            removeFromAllLists(taskId);
             switch (status) {
-                case "Unassigned": unassignedModel.addElement(title); break;
-                case "Open": openModel.addElement(title); break;
-                case "Priority": priorityModel.addElement(title); break;
-                case "Complete": completeModel.addElement(title); break;
+                case "Unassigned": unassignedModel.addElement(formattedTask); break;
+                case "Open": openModel.addElement(formattedTask); break;
+                case "Priority": priorityModel.addElement(formattedTask); break;
+                case "Complete": completeModel.addElement(formattedTask); break;
             }
         });
     }
 
-    private void removeFromAllLists(String title) {
-        unassignedModel.removeElement(title);
-        openModel.removeElement(title);
-        priorityModel.removeElement(title);
-        completeModel.removeElement(title);
+    private void removeFromAllLists(String taskId) {
+        System.out.println("Removing Task ID: " + taskId + " from all lists");
+        removeTaskFromModel(unassignedModel, taskId);
+        removeTaskFromModel(openModel, taskId);
+        removeTaskFromModel(priorityModel, taskId);
+        removeTaskFromModel(completeModel, taskId);
+    }
+
+    private void removeTaskFromModel(DefaultListModel<String> model, String taskId) {
+        System.out.println("Checking list for Task ID: " + taskId);
+        for (int i = 0; i < model.size(); i++) {
+            if (model.get(i).contains(taskId)) {
+                model.remove(i);
+                i--;
+            }
+        }
+    }
+
+    public void displayError(String message) {
+        SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null, message, "Error", JOptionPane.ERROR_MESSAGE));
     }
 }
