@@ -11,7 +11,7 @@ public class KanbanClient {
 
     public KanbanClient() {
         try {
-            socket = new Socket("localhost", 5000);
+            socket = new Socket( "192.168.195.198", 5000);
             out = new PrintWriter(socket.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 

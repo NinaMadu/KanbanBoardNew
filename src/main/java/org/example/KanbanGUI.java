@@ -15,20 +15,39 @@ class KanbanGUI {
 
     public KanbanGUI(PrintWriter out) {
         this.out = out;
-        JFrame frame = new JFrame("Kanban Board");
+        JFrame frame = new JFrame();
+        frame = new JFrame("Kanban Board");
         frame.setSize(800, 400);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setLayout(new GridLayout(1, 4));
+        frame.setLayout(new BorderLayout());
 
+        JPanel boardPanel = new JPanel(new GridLayout(1, 4));
         unassignedModel = new DefaultListModel<>();
         openModel = new DefaultListModel<>();
         priorityModel = new DefaultListModel<>();
         completeModel = new DefaultListModel<>();
 
-        frame.add(createColumn("Unassigned", unassignedModel));
-        frame.add(createColumn("Open", openModel));
-        frame.add(createColumn("Priority", priorityModel));
-        frame.add(createColumn("Complete", completeModel));
+        boardPanel.add(createColumn("Unassigned", unassignedModel));
+        boardPanel.add(createColumn("Open", openModel));
+        boardPanel.add(createColumn("Priority", priorityModel));
+        boardPanel.add(createColumn("Complete", completeModel));
+
+        frame.add(boardPanel, BorderLayout.CENTER);
+
+        // Separate Add Task button
+        // Separate Add Task button
+        JButton addButton = new JButton("Add Task");
+        addButton.setPreferredSize(new Dimension(150, 50)); // Increase height
+        addButton.setBackground(new Color(34, 177, 76)); // Beautiful green color
+        addButton.setForeground(Color.WHITE);
+        addButton.setFocusPainted(false);
+        addButton.setFont(new Font("Arial", Font.BOLD, 16));
+
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.add(addButton);
+        frame.add(buttonPanel, BorderLayout.SOUTH);
+
+        addButton.addActionListener(e -> showAddTaskDialog(unassignedModel, "test"));
 
         frame.setVisible(true);
     }
@@ -59,10 +78,6 @@ class KanbanGUI {
             }
         });
 
-        // **Adding the Add Task Button**
-        JButton addButton = new JButton("Add Task");
-        addButton.addActionListener(e -> showAddTaskDialog(model, title));
-        panel.add(addButton, BorderLayout.SOUTH);
 
         return panel;
     }
@@ -234,7 +249,7 @@ class KanbanGUI {
         dialog.add(label);
 
         JButton openButton = new JButton("Move to Open");
-        JButton priorityButton = new JButton("Move to Priority");
+        JButton priorityButton = new JButton("Move to Review");
         JButton completeButton = new JButton("Move to Complete");
         JButton unassignedButton = new JButton("Move to Unassigned");
 
