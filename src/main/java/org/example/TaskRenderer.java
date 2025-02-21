@@ -9,15 +9,6 @@ class TaskRenderer extends JLabel implements ListCellRenderer<String> {
 
     @Override
     public Component getListCellRendererComponent(JList<? extends String> list, String task, int index, boolean isSelected, boolean cellHasFocus) {
-        // Set the background color if selected
-        if (isSelected) {
-            setBackground(list.getSelectionBackground());
-            setForeground(list.getSelectionForeground());
-        } else {
-            setBackground(list.getBackground());
-            setForeground(list.getForeground());
-        }
-
         // Initialize task details
         String title = "";
         String description = "";
@@ -33,24 +24,41 @@ class TaskRenderer extends JLabel implements ListCellRenderer<String> {
             setText("<html><b>Invalid task format!</b></html>");
             setOpaque(true);
             setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+            setBackground(Color.RED);
             return this;
         }
 
-        // Extract task details using the regex groups
+        // Extract task details
         try {
             title = matcher.group(2).trim();
-            priority = matcher.group(3).trim();
+            priority = matcher.group(3).trim().toLowerCase(); // Convert to lowercase for comparison
             description = matcher.group(4).trim();
             dueDate = matcher.group(5).trim();
         } catch (Exception e) {
-            // Fallback in case of unexpected errors
             title = "Error parsing task";
             description = "Error parsing task description";
             priority = "N/A";
             dueDate = "N/A";
         }
 
-        // Display the task with improved formatting
+        // Determine background color based on priority
+        Color bgColor;
+        switch (priority) {
+            case "high":
+                bgColor = new Color(255, 102, 102); // Light Red
+                break;
+            case "medium":
+                bgColor = new Color(255, 204, 102); // Light Orange
+                break;
+            case "low":
+                bgColor = new Color(153, 204, 255); // Light Blue
+                break;
+            default:
+                bgColor = list.getBackground(); // Default background
+                break;
+        }
+
+        // Set text formatting
         setText("<html>" +
                 "<b>" + title + "</b><br>" +
                 "<i>Description:</i> " + description + "<br>" +
@@ -58,7 +66,16 @@ class TaskRenderer extends JLabel implements ListCellRenderer<String> {
                 "<i>Due Date:</i> " + dueDate + "<br>" +
                 "</html>");
 
-        // Set alignment and style
+        // Apply background color
+        if (isSelected) {
+            setBackground(list.getSelectionBackground());
+            setForeground(list.getSelectionForeground());
+        } else {
+            setBackground(bgColor);
+            setForeground(Color.BLACK);
+        }
+
+        // Ensure background is visible
         setOpaque(true);
         setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 

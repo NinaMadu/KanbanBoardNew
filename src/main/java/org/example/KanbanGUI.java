@@ -1,6 +1,7 @@
 package org.example;
 
 import javax.swing.*;
+import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -28,12 +29,18 @@ class KanbanGUI {
         clientName = getClientName();
 
         // Show client name in the header
-        JLabel clientNameLabel = new JLabel("Client: " + clientName, SwingConstants.CENTER);
+        JLabel clientNameLabel = new JLabel("Welcome " + clientName, SwingConstants.LEFT);
         clientNameLabel.setFont(new Font("Arial", Font.BOLD, 16));
         frame.add(clientNameLabel, BorderLayout.NORTH);
 
+        // Kanban Board Section
+        JPanel kanbanContainer = new JPanel(new BorderLayout());
+        kanbanContainer.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(Color.BLACK, 2), "Kanban Board",
+                TitledBorder.CENTER, TitledBorder.TOP, new Font("Arial", Font.BOLD, 16)));
+
         // Create Kanban board columns
-        JPanel contentPanel = new JPanel(new GridLayout(1, 4));
+        JPanel contentPanel = new JPanel(new GridLayout(1, 4, 10, 10)); // Spacing between columns
         unassignedModel = new DefaultListModel<>();
         openModel = new DefaultListModel<>();
         priorityModel = new DefaultListModel<>();
@@ -45,8 +52,9 @@ class KanbanGUI {
         contentPanel.add(createColumn("Review", priorityModel));
         contentPanel.add(createColumn("Complete", completeModel));
 
-        // Add content panel (Kanban board) to the center of the frame
-        frame.add(contentPanel, BorderLayout.CENTER);
+        // Add content panel (Kanban board) to the container
+        kanbanContainer.add(contentPanel, BorderLayout.CENTER);
+        frame.add(kanbanContainer, BorderLayout.CENTER);
 
         // Create a container panel for both the button and chat panels
         JPanel southPanel = new JPanel();
@@ -55,15 +63,21 @@ class KanbanGUI {
         // Create the button panel for "Add Task"
         JPanel buttonPanel = new JPanel();
         JButton addButton = new JButton("Add Task");
-        addButton.setPreferredSize(new Dimension(150, 40)); // Increase height
+        addButton.setPreferredSize(new Dimension(150, 30)); // Increase height
         addButton.setBackground(new Color(34, 177, 76)); // Beautiful green color
         addButton.setForeground(Color.WHITE);
         addButton.setFocusPainted(false);
-        addButton.setFont(new Font("Arial", Font.BOLD, 16));
+        addButton.setFont(new Font("Arial", Font.BOLD, 14));
         buttonPanel.add(addButton);
 
         // Add the button panel to the south container
         southPanel.add(buttonPanel);
+
+        // Chat Section
+        JPanel chatContainer = new JPanel(new BorderLayout());
+        chatContainer.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(Color.BLACK, 2), "Chat",
+                TitledBorder.CENTER, TitledBorder.TOP, new Font("Arial", Font.BOLD, 16)));
 
         // Create the chat panel
         JPanel chatPanel = new JPanel(new BorderLayout());
@@ -75,14 +89,22 @@ class KanbanGUI {
 
         messageField = new JTextField();
         sendButton = new JButton("Send");
+        sendButton.setPreferredSize(new Dimension(150, 30));
+        sendButton.setBackground(new Color(34, 177, 76));
+        sendButton.setFocusPainted(false);
+        sendButton.setFont(new Font("Arial", Font.BOLD, 14));
         sendButton.addActionListener(e -> sendMessage());
         JPanel inputPanel = new JPanel(new BorderLayout());
+
         inputPanel.add(messageField, BorderLayout.CENTER);
         inputPanel.add(sendButton, BorderLayout.EAST);
         chatPanel.add(inputPanel, BorderLayout.SOUTH);
 
-        // Add the chat panel to the south container
-        southPanel.add(chatPanel);
+        // Add the chat panel to the chat container
+        chatContainer.add(chatPanel, BorderLayout.CENTER);
+
+        // Add the chat container to the south container
+        southPanel.add(chatContainer);
 
         // Add the south container to the frame
         frame.add(southPanel, BorderLayout.SOUTH);
@@ -97,6 +119,7 @@ class KanbanGUI {
         // Make the frame visible
         frame.setVisible(true);
     }
+
 
 
 
@@ -391,7 +414,7 @@ class KanbanGUI {
     // Update chat area with a new message
     public void updateChatArea(String message) {
         SwingUtilities.invokeLater(() -> {
-            chatArea.append(message + "\n");
+            chatArea.append("  " + message + "\n");
             chatArea.setCaretPosition(chatArea.getDocument().getLength()); // Scroll to bottom
         });
     }
