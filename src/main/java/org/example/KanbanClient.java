@@ -46,6 +46,11 @@ public class KanbanClient {
                 } else if (response.startsWith("ERROR:")) {
                     gui.displayError(response);
                 }
+                // Handle Chat message
+                else if (response.startsWith("CHAT:")) {
+                    String message = response.substring(5).trim();
+                    gui.updateChatArea(message);
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();

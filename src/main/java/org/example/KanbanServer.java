@@ -40,6 +40,12 @@ public class KanbanServer {
         }
     }
 
+    static synchronized void broadcastChatMessage(String message) {
+        for (ClientHandler client : clients) {
+            client.sendMessage("CHAT:" + message); // Prefix message with "CHAT:"
+        }
+    }
+
     static synchronized void broadcastMessage(String message) {
         for (ClientHandler client : clients) { // Assuming `clients` is a List<ClientHandler>
             client.sendMessage(message);

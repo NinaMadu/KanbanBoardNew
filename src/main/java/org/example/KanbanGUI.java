@@ -12,26 +12,93 @@ import java.util.regex.Pattern;
 class KanbanGUI {
     private DefaultListModel<String> unassignedModel, openModel, priorityModel, completeModel;
     private PrintWriter out;
+    private String clientName;
+    private JTextArea chatArea;
+    private JTextField messageField;
+    private JButton sendButton;
 
     public KanbanGUI(PrintWriter out) {
         this.out = out;
         JFrame frame = new JFrame("Kanban Board");
-        frame.setSize(800, 400);
+        frame.setSize(800, 600);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setLayout(new GridLayout(1, 4));
+        frame.setLayout(new BorderLayout());
 
+        // First, prompt the user to enter their name
+        clientName = getClientName();
+
+        // Show client name in the header
+        JLabel clientNameLabel = new JLabel("Client: " + clientName, SwingConstants.CENTER);
+        clientNameLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        frame.add(clientNameLabel, BorderLayout.NORTH);
+
+        // Create Kanban board columns
+        JPanel contentPanel = new JPanel(new GridLayout(1, 4));
         unassignedModel = new DefaultListModel<>();
         openModel = new DefaultListModel<>();
         priorityModel = new DefaultListModel<>();
         completeModel = new DefaultListModel<>();
 
-        frame.add(createColumn("Unassigned", unassignedModel));
-        frame.add(createColumn("Open", openModel));
-        frame.add(createColumn("Priority", priorityModel));
-        frame.add(createColumn("Complete", completeModel));
+        // Add the Kanban columns to the content panel
+        contentPanel.add(createColumn("Unassigned", unassignedModel));
+        contentPanel.add(createColumn("Open", openModel));
+        contentPanel.add(createColumn("Review", priorityModel));
+        contentPanel.add(createColumn("Complete", completeModel));
 
+        // Add content panel (Kanban board) to the center of the frame
+        frame.add(contentPanel, BorderLayout.CENTER);
+
+        // Create a container panel for both the button and chat panels
+        JPanel southPanel = new JPanel();
+        southPanel.setLayout(new BoxLayout(southPanel, BoxLayout.Y_AXIS)); // Stack components vertically
+
+        // Create the button panel for "Add Task"
+        JPanel buttonPanel = new JPanel();
+        JButton addButton = new JButton("Add Task");
+        addButton.setPreferredSize(new Dimension(150, 40)); // Increase height
+        addButton.setBackground(new Color(34, 177, 76)); // Beautiful green color
+        addButton.setForeground(Color.WHITE);
+        addButton.setFocusPainted(false);
+        addButton.setFont(new Font("Arial", Font.BOLD, 16));
+        buttonPanel.add(addButton);
+
+        // Add the button panel to the south container
+        southPanel.add(buttonPanel);
+
+        // Create the chat panel
+        JPanel chatPanel = new JPanel(new BorderLayout());
+        chatArea = new JTextArea(10, 50);
+        chatArea.setEditable(false);
+        chatArea.setLineWrap(true);
+        JScrollPane chatScrollPane = new JScrollPane(chatArea);
+        chatPanel.add(chatScrollPane, BorderLayout.CENTER);
+
+        messageField = new JTextField();
+        sendButton = new JButton("Send");
+        sendButton.addActionListener(e -> sendMessage());
+        JPanel inputPanel = new JPanel(new BorderLayout());
+        inputPanel.add(messageField, BorderLayout.CENTER);
+        inputPanel.add(sendButton, BorderLayout.EAST);
+        chatPanel.add(inputPanel, BorderLayout.SOUTH);
+
+        // Add the chat panel to the south container
+        southPanel.add(chatPanel);
+
+        // Add the south container to the frame
+        frame.add(southPanel, BorderLayout.SOUTH);
+
+        // Add listener to the "Add Task" button
+        addButton.addActionListener(e -> showAddTaskDialog(unassignedModel, "test"));
+
+        // Revalidate and repaint the frame to make sure everything is updated
+        frame.revalidate();
+        frame.repaint();
+
+        // Make the frame visible
         frame.setVisible(true);
     }
+
+
 
     private JPanel createColumn(String title, DefaultListModel<String> model) {
         JPanel panel = new JPanel(new BorderLayout());
@@ -59,12 +126,18 @@ class KanbanGUI {
             }
         });
 
-        // **Adding the Add Task Button**
-        JButton addButton = new JButton("Add Task");
-        addButton.addActionListener(e -> showAddTaskDialog(model, title));
-        panel.add(addButton, BorderLayout.SOUTH);
+//        // **Adding the Add Task Button**
+//        JButton addButton = new JButton("Add Task");
+//        addButton.addActionListener(e -> showAddTaskDialog(model, title));
+//        panel.add(addButton, BorderLayout.SOUTH);
 
         return panel;
+    }
+
+    private String getClientName() {
+        // Show a dialog asking the user for their name
+        String name = JOptionPane.showInputDialog(null, "Please enter your name:", "Client Name", JOptionPane.PLAIN_MESSAGE);
+        return name != null ? name : "Anonymous";  // If they don't provide a name, set it to "Anonymous"
     }
 
     private void showAddTaskDialog(DefaultListModel<String> model, String columnTitle) {
@@ -234,7 +307,7 @@ class KanbanGUI {
         dialog.add(label);
 
         JButton openButton = new JButton("Move to Open");
-        JButton priorityButton = new JButton("Move to Priority");
+        JButton priorityButton = new JButton("Move to Review");
         JButton completeButton = new JButton("Move to Complete");
         JButton unassignedButton = new JButton("Move to Unassigned");
 
@@ -300,4 +373,32 @@ class KanbanGUI {
     public void displayError(String message) {
         SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null, message, "Error", JOptionPane.ERROR_MESSAGE));
     }
+
+
+    private void sendMessage() {
+        String message = messageField.getText().trim();
+        if (!message.isEmpty()) {
+            // Display the message in the chat area with the client name
+            //chatArea.append(clientName + ": " + message + "\n");
+            messageField.setText("");  // Clear the input field
+
+            // Send message to the server with "CHAT:" prefix
+            out.println("CHAT: " + clientName + ": " + message);  // Send formatted message with client name
+            out.flush();
+        }
+    }
+
+    // Update chat area with a new message
+    public void updateChatArea(String message) {
+        SwingUtilities.invokeLater(() -> {
+            chatArea.append(message + "\n");
+            chatArea.setCaretPosition(chatArea.getDocument().getLength()); // Scroll to bottom
+        });
+    }
+
+    // Handling incoming messages from the server
+    public void handleIncomingMessage(String message) {
+        updateChatArea(message); // Update chat area with incoming message
+    }
+
 }

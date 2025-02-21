@@ -44,6 +44,9 @@ class ClientHandler extends Thread {
                     case "EDIT":
                         editTask(parts[1]);  // Handle edit task request
                         break;
+                    case "CHAT":
+                        broadcastChat(parts[1]);
+                        break;
                     default:
                         out.println("ERROR: Invalid command");
                         break;
@@ -74,6 +77,12 @@ class ClientHandler extends Thread {
         }
         sendMessage("END"); // Indicate end of data
     }
+
+    private void broadcastChat(String message) {
+        String formattedMessage = "  "+message;
+        KanbanServer.broadcastChatMessage(formattedMessage);
+    }
+
 
     public void sendMessage(String message) {
         out.println(message);

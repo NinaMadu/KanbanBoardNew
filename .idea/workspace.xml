@@ -5,10 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e8c054ab-6776-402e-b949-c85c838c0771" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/TaskPanel.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/TaskRenderer.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/ClientHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/ClientHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/KanbanClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/KanbanClient.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/example/KanbanGUI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/KanbanGUI.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/KanbanServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/KanbanServer.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -40,7 +41,7 @@
     &quot;Application.KanbanClient.executor&quot;: &quot;Run&quot;,
     &quot;Application.KanbanServer.executor&quot;: &quot;Run&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;new-task&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;chat&quot;,
     &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
     &quot;onboarding.tips.debug.path&quot;: &quot;D:/6 Sem/EE6253 Operating System and Network Programming/KanbanBoardNew/src/main/java/org/example/Main.java&quot;
@@ -48,6 +49,19 @@
 }</component>
   <component name="RunManager" selected="Application.KanbanClient">
     <configuration name="KanbanClient (1)" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="org.example.KanbanClient" />
+      <module name="KanbanBoardNew" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="org.example.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="KanbanClient" type="Application" factoryName="Application" singleton="false" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="org.example.KanbanClient" />
       <module name="KanbanBoardNew" />
       <extension name="coverage">
@@ -107,6 +121,7 @@
       <list>
         <item itemvalue="Application.KanbanClient" />
         <item itemvalue="Application.KanbanServer" />
+        <item itemvalue="Application.KanbanClient" />
         <item itemvalue="Application.KanbanClient" />
       </list>
     </recent_temporary>
