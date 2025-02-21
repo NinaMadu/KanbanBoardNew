@@ -4,9 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e8c054ab-6776-402e-b949-c85c838c0771" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/TaskPanel.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/TaskRenderer.java" afterDir="false" />
+    <list default="true" id="e8c054ab-6776-402e-b949-c85c838c0771" name="Changes" comment="ui changes">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/example/KanbanGUI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/KanbanGUI.java" afterDir="false" />
     </list>
@@ -25,6 +23,18 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "ChamudiM"
+  }
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/NinaMadu/KanbanBoardNew.git",
+    "accountId": "f73a7b61-08e8-42e3-8f8e-6d8d83212dc4"
+  }
+}]]></component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 7
 }</component>
@@ -46,7 +56,7 @@
     &quot;onboarding.tips.debug.path&quot;: &quot;D:/6 Sem/EE6253 Operating System and Network Programming/KanbanBoardNew/src/main/java/org/example/Main.java&quot;
   }
 }</component>
-  <component name="RunManager" selected="Application.KanbanClient">
+  <component name="RunManager" selected="Application.KanbanClient (1)">
     <configuration name="KanbanClient (1)" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="org.example.KanbanClient" />
       <module name="KanbanBoardNew" />
@@ -100,13 +110,15 @@
       </method>
     </configuration>
     <list>
+      <item itemvalue="Application.KanbanClient (1)" />
       <item itemvalue="Application.KanbanClient" />
       <item itemvalue="Application.KanbanServer" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Application.KanbanClient" />
+        <item itemvalue="Application.KanbanClient (1)" />
         <item itemvalue="Application.KanbanServer" />
+        <item itemvalue="Application.KanbanClient" />
         <item itemvalue="Application.KanbanClient" />
       </list>
     </recent_temporary>
@@ -120,7 +132,31 @@
       <option name="presentableId" value="Default" />
       <updated>1739783617948</updated>
     </task>
+    <task id="LOCAL-00001" summary="ui changes">
+      <option name="closed" value="true" />
+      <created>1740123383332</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1740123383332</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="ui changes" />
+    <option name="LAST_COMMIT_MESSAGE" value="ui changes" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
