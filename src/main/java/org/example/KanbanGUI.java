@@ -29,7 +29,7 @@ class KanbanGUI {
 
         boardPanel.add(createColumn("Unassigned", unassignedModel));
         boardPanel.add(createColumn("Open", openModel));
-        boardPanel.add(createColumn("Priority", priorityModel));
+        boardPanel.add(createColumn("Review", priorityModel));
         boardPanel.add(createColumn("Complete", completeModel));
 
         frame.add(boardPanel, BorderLayout.CENTER);
